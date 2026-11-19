@@ -1,0 +1,48 @@
+/* Figma 8840:43552: the device and all control cards share one scroll surface. */
+#demo .v4-control > .v3-control-scroll {
+  position:absolute; z-index:40; top:0; right:0; bottom:0; left:0; padding-top:106px; box-sizing:border-box;
+  overflow-x:hidden; overflow-y:auto; overscroll-behavior-y:contain;
+  touch-action:pan-y; overflow-anchor:none; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+}
+#demo .v3-control-scroll::-webkit-scrollbar { display:none; }
+#demo .v4-control.v3-notice-active > .v3-control-scroll { padding-top:161px; }
+#demo .v4-control .v3-control-scroll > .v4-pump-row {
+  position:relative!important; z-index:auto!important; top:auto!important; right:auto!important; left:auto!important;
+  display:block!important; width:180px!important; height:180px!important; margin:0 auto!important; transform:none!important;
+}
+#demo .v4-control .v3-control-scroll > .v4-controls {
+  position:relative!important; z-index:auto!important; inset:auto!important; width:100%!important; height:auto!important;
+  display:flex!important; flex-direction:column; gap:16px; box-sizing:border-box;
+  margin:0!important; padding:0 16px 176px!important; overflow:visible!important;
+}
+/* Reminder and header remain fixed while the entire session body scrolls. */
+#demo .v4-control.has-c36-notice.air2-warm-notice.v3-notice-active > .c36-notice {
+  z-index:65!important; top:109px!important; right:58px!important; left:58px!important;
+  height:36px!important; min-height:36px!important;
+}
+#demo .v4-control.has-c36-notice.air2-warm-notice.v3-notice-active > .c36-notice p {
+  width:286px!important; max-width:100%!important; color:rgba(89,53,42,.8)!important;
+  font-size:12px!important; line-height:18px!important; font-weight:400!important; letter-spacing:.24px;
+}
+#demo .v4-control.has-c36-notice.air2-warm-notice.v3-notice-active::before { height:315px!important; bottom:auto!important; z-index:2!important; }
+#demo .v3-control-scroll > .v4-controls > * { margin-top:0!important; margin-bottom:0!important; flex-shrink:0; }
+
+/* Native Figma wash layers, without the retired phone-frame background PNG. */
+#demo .v4-control.has-c36-notice.air2-warm-notice.v3-notice-active::before { display:none!important; background-image:none!important; }
+#demo .v3-notice-backdrop { display:none; position:absolute; z-index:55; top:0; right:0; left:0; height:315px; overflow:hidden; pointer-events:none; }
+#demo .v3-notice-active > .v3-notice-backdrop { display:block; }
+#demo .v3-notice-backdrop-art { position:absolute; top:-65.708px; left:calc(50% - 272px); width:544px; height:288.908px; transform:scaleY(-1); mask-image:url('./assets/figma-notice-scroll/wash-mask.svg'); mask-size:904px 680px; mask-position:-180px -413.295px; mask-repeat:no-repeat; }
+#demo .v3-notice-backdrop-art img { display:block; }
+#demo .v3-notice-backdrop { mask-image:linear-gradient(to bottom,#000 0px,#000 100px,transparent 224px); -webkit-mask-image:linear-gradient(to bottom,#000 0px,#000 100px,transparent 224px); }
+
+/* Figma mask group spans the page; no hard viewport edge below the reminder. */
+#demo .v3-control-scroll { mask-image:linear-gradient(to bottom,transparent 0,transparent 106px,#000 142px,#000 100%); -webkit-mask-image:linear-gradient(to bottom,transparent 0,transparent 106px,#000 142px,#000 100%); }
+#demo .v3-notice-active > .v3-control-scroll { mask-image:url('./assets/figma-notice-scroll/scroll-mask.svg'); mask-size:402px 941px; mask-position:0 -67px; mask-repeat:no-repeat; -webkit-mask-image:url('./assets/figma-notice-scroll/scroll-mask.svg'); -webkit-mask-size:402px 941px; -webkit-mask-position:0 -67px; -webkit-mask-repeat:no-repeat; }
+/* Intersect the original page mask with the fixed chrome's soft exclusion area. */
+#demo .v3-notice-active > .v3-control-scroll {
+  mask-image:linear-gradient(to bottom,transparent 0,transparent 106px,#000 161px,#000 100%),url('./assets/figma-notice-scroll/scroll-mask.svg');
+  mask-size:100% 100%,402px 941px; mask-position:0 0,0 -67px; mask-repeat:no-repeat; mask-composite:intersect;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,transparent 106px,#000 161px,#000 100%),url('./assets/figma-notice-scroll/scroll-mask.svg');
+  -webkit-mask-size:100% 100%,402px 941px; -webkit-mask-position:0 0,0 -67px; -webkit-mask-repeat:no-repeat;
+}
+#demo .v4-control .v3-control-scroll > .v4-controls > .v4-levels.v57-levels { margin-top:0!important; }

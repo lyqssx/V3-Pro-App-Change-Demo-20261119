@@ -1,0 +1,293 @@
+/* V3 Pro model-specific capability guards. */
+(function () {
+  if (window.V3ProCapabilities && window.V3ProCapabilities.version === 9) return;
+
+  var root = document.getElementById('demo');
+  var nightLightDrag = null;
+  var suppressNightLightClickTarget = null;
+
+  function currentState() {
+    return typeof state !== 'undefined' ? state : (window.state || null);
+  }
+
+  function enforce() {
+    var current = currentState();
+    if (!current) return;
+    current.v3ProCapabilities = current.v3ProCapabilities || {};
+    current.v3ProCapabilities.autoSwitch = false;
+    if (!Number.isInteger(current.v3ProCapabilities.nightLightLevel)) {
+      current.v3ProCapabilities.nightLightLevel = 1;
+    }
+    if (typeof current.v3ProCapabilities.nightLightOn !== 'boolean') {
+      current.v3ProCapabilities.nightLightOn = current.v3ProCapabilities.nightLightLevel > 0;
+    }
+    if (!Number.isInteger(current.v3ProCapabilities.lastNightLightLevel) || current.v3ProCapabilities.lastNightLightLevel < 1) {
+      current.v3ProCapabilities.lastNightLightLevel = 2;
+    }
+
+    /* Program sequencing remains available. Outside a selected program, the
+       legacy state must not silently retain sensor-led automatic switching. */
+    if (!current.selectedProgram && current.auto) current.auto = false;
+  }
+
+  function replaceProductVisuals() {
+    if (!root) return;
+    var pumpRow = root.querySelector('.v4-control .v4-pump-row');
+    if (pumpRow && !pumpRow.querySelector('.v3-pro-device-frame')) {
+      pumpRow.className = 'v4-pump-row v3-pro-main-visual';
+      pumpRow.innerHTML = '<div class="v3-pro-device-frame" aria-label="V3 Pro pump">' +
+        '<span class="v3-pro-device-reflection" aria-hidden="true"><img src="./assets/v3-pro-device-reflection.png" alt=""></span>' +
+        '<span class="v3-pro-device-main"><img src="./assets/v3-pro-main.png" alt=""></span>' +
+      '</div>';
+    }
+
+    var dockPumps = root.querySelector('.v4-home-dock .h7-pump-pair, .v4-home-dock .v4-dock-pumps');
+    if (dockPumps && !dockPumps.querySelector('[data-v3-pro-dock-device]')) {
+      dockPumps.classList.add('v3-pro-dock-visual');
+      dockPumps.innerHTML = '<img data-v3-pro-dock-device src="./assets/v3-pro-main.png" alt="V3 Pro pump">';
+    }
+
+    var dockBatteryRow = root.querySelector('.v4-home-dock .h7-dock-copy > small');
+    if (dockBatteryRow) {
+      var dockBatteries = dockBatteryRow.querySelectorAll('.h7-battery');
+      if (dockBatteries.length) {
+        var primaryBattery = dockBatteries[0];
+        var sideLabel = primaryBattery.querySelector(':scope > b');
+        if (sideLabel) sideLabel.remove();
+        primaryBattery.setAttribute('aria-label', 'Battery 80 percent');
+        for (var batteryIndex = 1; batteryIndex < dockBatteries.length; batteryIndex += 1) dockBatteries[batteryIndex].remove();
+      }
+    }
+
+    var deviceArt = root.querySelector('.v4-device-card .art');
+    if (deviceArt && !deviceArt.classList.contains('v3-pro-device-art')) {
+      deviceArt.classList.add('v3-pro-device-art');
+      deviceArt.src = './assets/v3-pro-main.png';
+      deviceArt.alt = 'V3 Pro pump';
+    }
+
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var textNode;
+    while ((textNode = walker.nextNode())) {
+      if (/Air\s*2/.test(textNode.nodeValue)) textNode.nodeValue = textNode.nodeValue.replace(/Air\s*2/g, 'V3 Pro');
+    }
+  }
+
+  function clock(seconds) {
+    var value = Math.max(0, Math.floor(Number(seconds) || 0));
+    return String(Math.floor(value / 60)).padStart(2, '0') + ':' + String(value % 60).padStart(2, '0');
+  }
+
+  function milkBoostCard() {
+    if (window.v3ProRhythmCard) return window.v3ProRhythmCard();
+    var timer = state.running ? clock(state.timer) : '00:00';
+    return '<section class="v3-pro-figma-boost-card" data-r49-boost-state="manual">' +
+      '<div class="v3-pro-figma-boost-card__header"><span class="v3-pro-figma-boost-card__title"><img src="./assets/figma-v3-control/running-bg.svg" alt="">Milk Boost</span>' +
+      '<span class="v3-pro-figma-boost-card__timer">' + timer + '</span><button class="v3-pro-figma-boost-card__arrow" data-v4="list" aria-label="Open list"><img src="./assets/figma-v3-control/running-back.svg" alt=""></button></div>' +
+      '<div class="v3-pro-figma-boost-card__flow"><img src="./assets/figma-v3-control/running-frame.svg" alt=""><span>20min</span></div>' +
+    '</section>';
+  }
+
+  function nightLightCard() {
+    var current = currentState();
+    var capability = current.v3ProCapabilities;
+    var level = Math.max(0, Math.min(4, capability.nightLightLevel));
+    var isOn = capability.nightLightOn !== false;
+    var isAuto = capability.adaptiveBrightness !== false;
+    var offline = window.V3ProSettings && !window.V3ProSettings.connected();
+    return '<section class="v3-pro-night-light ' + (isOn ? 'is-on' : 'is-off') + '" data-v3-light-card data-level="' + level + '" data-auto="' + isAuto + '" data-connected="' + !offline + '">' +
+      '<div class="v3-pro-night-light__header"><span class="v3-pro-night-light__title">' +
+        '<img src="./assets/v3-pro-night-light.svg" alt=""><b>Night Light</b></span>' +
+        '<button class="v3-pro-night-light__switch" data-v3-light-toggle role="switch" aria-disabled="' + !!offline + '" aria-checked="' + isOn + '" aria-label="Night Light"><i></i></button>' +
+      '</div>' +
+      '<button class="v3-pro-night-light__track" data-v3-light-track role="slider" aria-disabled="' + !!offline + '" aria-label="Night Light brightness" aria-valuemin="0" aria-valuemax="4" aria-valuenow="' + level + '" style="--night-light-level:' + level + '">' +
+        '<span class="v3-pro-night-light__fill"></span>' +
+        '<span class="v3-pro-night-light__marks"><i></i><i></i><i></i><i></i><i></i></span>' +
+        '<span class="v3-pro-night-light__thumb">' + (isAuto ? 'Auto' : '') + '</span>' +
+      '</button>' +
+    '</section>';
+  }
+
+  function installNightLight() {
+    if (!root) return;
+    var existing = root.querySelector('[data-v3-light-card]');
+    var current = currentState();
+    if (existing && current) {
+      var expectedLevel = String(current.v3ProCapabilities.nightLightLevel);
+      var expectedClass = current.v3ProCapabilities.nightLightOn === false ? 'is-off' : 'is-on';
+      if (existing.getAttribute('data-level') !== expectedLevel || !existing.classList.contains(expectedClass) || existing.getAttribute('data-auto') !== String(current.v3ProCapabilities.adaptiveBrightness !== false) || existing.getAttribute('data-connected') !== String(!window.V3ProSettings || window.V3ProSettings.connected())) existing.outerHTML = nightLightCard();
+      return;
+    }
+    var speed = root.querySelector('.v4-control .v4-controls > .v4-speed');
+    if (speed) speed.insertAdjacentHTML('afterend', nightLightCard());
+  }
+
+  function updateNightLight(level, restoreDefaultAfterOff, nextOn) {
+    var current = currentState();
+    if (!current) return;
+    enforce();
+    var apply = function () {
+      var capability = current.v3ProCapabilities;
+      level = Math.max(0, Math.min(4, Math.round(Number(level) || 0)));
+      if (level === 0) {
+        capability.nightLightOn = false;
+        if (restoreDefaultAfterOff) capability.lastNightLightLevel = 2;
+      } else {
+        capability.lastNightLightLevel = level;
+        capability.nightLightOn = typeof nextOn === 'boolean' ? nextOn : true;
+      }
+      if (typeof nextOn === 'boolean') capability.nightLightOn = nextOn;
+      capability.nightLightLevel = level;
+      refresh();
+    };
+    var rollback = function () {
+      var track = root.querySelector('[data-v3-light-track]');
+      clearNightLightPreview(track);
+      if (track) track.setAttribute('aria-valuenow', String(current.v3ProCapabilities.nightLightLevel));
+      refresh();
+    };
+    if (window.V3ProSettings) return window.V3ProSettings.submit(apply, rollback);
+    apply();
+  }
+
+  function nightLightLevelAt(track, clientX, snapToStep) {
+    var rect = track.getBoundingClientRect();
+    var ratio = rect.width ? (clientX - rect.left) / rect.width : 0;
+    var level = Math.max(0, Math.min(4, ratio * 4));
+    return snapToStep ? Math.round(level) : level;
+  }
+
+  function previewNightLight(track, level) {
+    var percent = Math.max(0, Math.min(100, (level / 4) * 100));
+    var fill = track.querySelector('.v3-pro-night-light__fill');
+    var thumb = track.querySelector('.v3-pro-night-light__thumb');
+    if (fill) fill.style.clipPath = 'inset(0 ' + (100 - percent) + '% 0 0)';
+    if (thumb) thumb.style.left = Math.min(percent, 96.15) + '%';
+    track.setAttribute('aria-valuenow', String(Math.round(level)));
+  }
+
+  function clearNightLightPreview(track) {
+    var fill = track && track.querySelector('.v3-pro-night-light__fill');
+    var thumb = track && track.querySelector('.v3-pro-night-light__thumb');
+    if (fill) fill.style.removeProperty('clip-path');
+    if (thumb) thumb.style.removeProperty('left');
+    if (track) track.classList.remove('is-dragging');
+  }
+
+  function installNightLightEvents() {
+    if (window.__v3ProNightLightEvents) return;
+    window.__v3ProNightLightEvents = true;
+
+    document.addEventListener('click', function (event) {
+      var toggle = event.target.closest && event.target.closest('[data-v3-light-toggle]');
+      var track = event.target.closest && event.target.closest('[data-v3-light-track]');
+      if (!toggle && !track) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      var current = currentState();
+      if (!current) return;
+      if (track && track === suppressNightLightClickTarget) {
+        suppressNightLightClickTarget = null;
+        return;
+      }
+      suppressNightLightClickTarget = null;
+      enforce();
+      var capability = current.v3ProCapabilities;
+      if (toggle) {
+        var nextOn = capability.nightLightOn === false;
+        var nextLevel = nextOn && capability.nightLightLevel === 0 ? Math.max(1, capability.lastNightLightLevel || 2) : capability.nightLightLevel;
+        updateNightLight(nextLevel, false, nextOn);
+        return;
+      }
+      updateNightLight(nightLightLevelAt(track, event.clientX, true), true);
+    }, true);
+
+    document.addEventListener('pointerdown', function (event) {
+      var track = event.target.closest && event.target.closest('[data-v3-light-track]');
+      if (!track || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      if (window.V3ProSettings && !window.V3ProSettings.canExecute(false)) return;
+      nightLightDrag = {
+        track: track,
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        level: nightLightLevelAt(track, event.clientX, true),
+        moved: false
+      };
+      track.classList.add('is-dragging');
+      if (track.setPointerCapture) track.setPointerCapture(event.pointerId);
+    }, true);
+
+    document.addEventListener('pointermove', function (event) {
+      if (!nightLightDrag || event.pointerId !== nightLightDrag.pointerId) return;
+      if (Math.abs(event.clientX - nightLightDrag.startX) > 3) nightLightDrag.moved = true;
+      if (!nightLightDrag.moved) return;
+      event.preventDefault();
+      nightLightDrag.level = nightLightLevelAt(nightLightDrag.track, event.clientX, true);
+      previewNightLight(nightLightDrag.track, nightLightDrag.level);
+    }, { capture: true, passive: false });
+
+    document.addEventListener('pointerup', function (event) {
+      if (!nightLightDrag || event.pointerId !== nightLightDrag.pointerId) return;
+      var drag = nightLightDrag;
+      nightLightDrag = null;
+      if (!drag.moved) {
+        clearNightLightPreview(drag.track);
+        return;
+      }
+      event.preventDefault();
+      suppressNightLightClickTarget = drag.track;
+      updateNightLight(drag.level, true);
+    }, { capture: true, passive: false });
+
+    document.addEventListener('pointercancel', function (event) {
+      if (!nightLightDrag || event.pointerId !== nightLightDrag.pointerId) return;
+      var drag = nightLightDrag;
+      nightLightDrag = null;
+      clearNightLightPreview(drag.track);
+      var current = currentState();
+      if (current) drag.track.setAttribute('aria-valuenow', String(current.v3ProCapabilities.nightLightLevel));
+    }, true);
+
+    document.addEventListener('keydown', function (event) {
+      var track = event.target.closest && event.target.closest('[data-v3-light-track]');
+      if (!track || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
+      event.preventDefault();
+      var current = currentState();
+      if (!current) return;
+      updateNightLight(current.v3ProCapabilities.nightLightLevel + (event.key === 'ArrowRight' ? 1 : -1), true);
+    }, true);
+  }
+
+  function installCardOverride() {
+    if (window.__v3ProCardOverride || typeof window.v4AutoCard !== 'function') return;
+    if (!document.querySelector('link[data-auto-switch-decoupled]')) return;
+    var baseAutoCard = window.v4AutoCard;
+    window.v4AutoCard = v4AutoCard = function () {
+      return state.selectedProgram === 'Milk Boost' ? milkBoostCard() : baseAutoCard.apply(this, arguments);
+    };
+    window.__v3ProCardOverride = true;
+    if (typeof window.v4View === 'function') window.v4View();
+  }
+
+  function refresh() {
+    enforce();
+    replaceProductVisuals();
+    installNightLight();
+  }
+
+  function boot() {
+    installNightLightEvents();
+    refresh();
+    if (root) new MutationObserver(refresh).observe(root, { childList: true, subtree: true });
+    var attempts = 0;
+    var cardTimer = setInterval(function () {
+      installCardOverride();
+      attempts += 1;
+      if (window.__v3ProCardOverride || attempts > 30) clearInterval(cardTimer);
+    }, 200);
+  }
+
+  window.V3ProCapabilities = { version: 9, enforce: refresh };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+}());

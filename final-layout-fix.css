@@ -1,0 +1,77 @@
+/* Final review surface: keep the phone canvas centered and the reviewer tools contained. */
+@media (min-width: 601px) {
+  html body #demo {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) scale(var(--air2-scale, 1)) !important;
+    transform-origin: top center !important;
+  }
+}
+
+html body .demo-trigger-root {
+  position: fixed !important;
+  top: max(14px, env(safe-area-inset-top)) !important;
+  right: max(14px, env(safe-area-inset-right)) !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: 99999 !important;
+  pointer-events: none !important;
+}
+
+html body .demo-trigger-toggle {
+  position: relative !important;
+  display: grid !important;
+  width: auto !important;
+  min-width: 72px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: linear-gradient(145deg, #f46f91, #b86dff) !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  pointer-events: auto !important;
+}
+
+html body .demo-trigger-panel {
+  position: absolute !important;
+  top: 42px !important;
+  right: 0 !important;
+  bottom: auto !important;
+  left: auto !important;
+  display: block !important;
+  width: min(330px, calc(100vw - 28px)) !important;
+  max-height: min(620px, calc(100vh - 70px)) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(94, 61, 71, .10) !important;
+  border-radius: 26px !important;
+  background: rgba(255, 252, 250, .96) !important;
+  box-shadow: 0 22px 58px rgba(68, 41, 50, .18) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(-6px) scale(.98) !important;
+  pointer-events: none !important;
+}
+
+html body .demo-trigger-root.is-open .demo-trigger-panel {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+html body .demo-trigger-action {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: 50px !important;
+  box-sizing: border-box !important;
+  border: 1px solid rgba(117, 80, 92, .10) !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, .9) !important;
+  color: #4b383d !important;
+  text-align: left !important;
+}
