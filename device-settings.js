@@ -1,5 +1,7 @@
 /* Figma 1842:19167 / 19030 / 19365. Preferences simulate device storage. */
 (function () {
+  // Retain the completed assistant UI for a future coordinated release.
+  var STABILITY_ASSISTANT_UI_ENABLED = false;
   var root = document.getElementById('demo');
   var storageKey = 'v3-pro-device-settings';
   var defaults = { leakAlerts: true, adaptive: true, brightness: 50, name: 'V3 Pro' };
@@ -75,10 +77,14 @@
       '<header class="ds-toolbar"><button class="ds-back" data-settings-action="back" aria-label="Back"><img src="' + asset + 'back.svg" alt=""></button><h1>Setting</h1></header>';
   }
   function chevron() { return '<img class="ds-chevron" src="' + asset + 'chevron.svg" alt="">'; }
+  function leakAlertCard() {
+    return '<div class="ds-card ds-leak"><div class="ds-setting-row"><div><b>Leak Detection</b><p>Receive air leak alerts and fit guidance.</p></div>' + toggle('leakAlerts', 'Leak Detection') + '</div></div>';
+  }
   function settings() {
     return '<main class="ds-content">' +
       '<button class="ds-device ds-card" data-settings-action="info">' + pump('small') + '<span class="ds-device-copy"><b>' + escapeText(preferences.name) + '</b><span class="ds-battery"><img src="' + asset + 'battery-80.svg" alt="Battery 80 percent"></span></span>' + chevron() + '</button>' +
       '<section class="ds-group"><h2>Device Features</h2>' +
+      (STABILITY_ASSISTANT_UI_ENABLED ? leakAlertCard() : '') +
       '<div class="ds-card ds-controls"><div class="ds-brightness"><label for="ds-brightness">Screen/Button Brightness</label><output for="ds-brightness">' + preferences.brightness + '%</output><input id="ds-brightness" type="range" min="5" max="80" step="1" aria-label="Screen/Button Brightness" value="' + preferences.brightness + '" style="--ds-progress:' + ((preferences.brightness - 5) / 75 * 100) + '%" aria-disabled="' + !connected() + '" ' + '></div>' +
       '<div class="ds-setting-row"><div><b>Adaptive Brightness</b>' + (!preferences.adaptive ? '<p>Automatically adjusts screen, button, and night light brightness based on ambient light.</p>' : '') + '</div>' + toggle('adaptive', 'Adaptive Brightness') + '</div>' +
       '</div></section>' +
