@@ -70,7 +70,8 @@
   function now() { return Date.now(); }
 
   function leakAlertsEnabled() {
-    return !window.V3ProSettings || window.V3ProSettings.leakAlertsEnabled();
+    // The retired alert switch must not disable background records or the home Guide.
+    return true;
   }
 
   function preloadGuides() {

@@ -3,10 +3,10 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
-function load(){
+function load(legacyLeakEnabled=true){
   const handlers={};const timers=[];let markup='';
   const root={querySelector:s=>s==='.v4-control'?{classList:{add(){}},insertAdjacentHTML(_,html){markup+=html;}}:null,querySelectorAll:()=>[],insertAdjacentHTML(_,html){markup+=html;}};
-  const ctx={state:{page:'control',running:true,paused:false,timer:42},Image:class{},Date,
+  const ctx={V3ProSettings:{leakAlertsEnabled:()=>legacyLeakEnabled},state:{page:'control',running:true,paused:false,timer:42},Image:class{},Date,
     document:{readyState:'complete',getElementById:()=>root,querySelector:()=>null,
       addEventListener(type,fn){(handlers[type]??=[]).push(fn);}},
     setTimeout(fn,delay){timers.push({fn,delay});},clearTimeout(){},setInterval(){},v4Home:()=>'<main class="v4-home-cards">',v4Log:()=>'',
@@ -54,4 +54,14 @@ test('saving amount stays on control; deferred guide waits for explicit home vis
  assert.equal(ctx.state.page,'control');assert.equal(ctx.state.modal,null);
  assert.doesNotMatch(html(),/sa-home-leak-notice/);
  ctx.state.page='home';ctx.v4View();assert.match(html(),/sa-home-leak-notice/);
+});
+
+test('a previously disabled leak alert setting cannot suppress recording or home Guide',()=>{
+ const {ctx,html}=load(false);
+ ctx.V3ProLeakFlow.trigger('minor-leak');
+ assert.equal(ctx.state.v3LeakEvents.length,1);
+ assert.equal(ctx.state.running,true);assert.equal(ctx.state.paused,false);
+ ctx.state.running=false;ctx.state.page='home';ctx.v4View();
+ assert.match(html(),/sa-home-leak-notice/);
+ assert.doesNotMatch(html(),/role="dialog"/);
 });
