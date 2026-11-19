@@ -32,3 +32,5 @@ python3 -m http.server 8766 --bind 127.0.0.1
 Product screens, dialogs and user messages are in English. The reviewer Trigger panel remains in Chinese.
 
 Night light: reopening restores the last non-zero brightness level; without valid memory it starts at level 1. Screen/button brightness is 5%–80%.
+
+Travel lock: enabling the simulated device lock pauses the active session and displays "Travel lock enabled. Pumping is paused." Unlocking does not automatically resume pumping.

@@ -2,6 +2,8 @@
 (function () {
   var host = document.getElementById('demo');
   var pointerNotified = false;
+  var lockNoticeTimer = null;
+  var lockNoticeSerial = 0;
   function current() { return typeof state !== 'undefined' ? state : window.state; }
   current().travelLocked = new URLSearchParams(location.search).get('travel-lock') === '1';
   function isLocked() { return current().travelLocked === true; }
@@ -52,10 +54,26 @@
     window.addEventListener(type, guard, {capture:true, passive:false});
   });
   function setLocked(value) {
-    current().travelLocked = !!value;
+    var s = current();
+    var wasLocked = s.travelLocked === true;
+    s.travelLocked = !!value;
     pointerNotified = false;
     var old = host.querySelector('[data-travel-lock-dialog]');
     if (old) old.remove();
+    if (s.travelLocked && !wasLocked) {
+      // Simulate the device's lock/pause report; preserve the current session.
+      if (s.running) s.paused = true;
+      var id = 'travel-lock-enabled-' + (++lockNoticeSerial);
+      s.controlNotice = {kind:'travel-lock-enabled',id:id,startedAt:Date.now(),backdrop:true,
+        text:'Travel lock enabled. Pumping is paused.'};
+      clearTimeout(lockNoticeTimer);
+      lockNoticeTimer = setTimeout(function () {
+        if (!s.controlNotice || s.controlNotice.id !== id) return;
+        s.controlNotice = null;
+        if (window.v4View) window.v4View();
+      }, 5000);
+      if (window.v4View) window.v4View();
+    }
     updateTriggerStatus();
   }
   function updateTriggerStatus() {

@@ -18,7 +18,7 @@ test('locked device rejects commands but allows page navigation',()=>{
   const {ctx,dispatch}=load();ctx.V3ProTravelLock.setLocked(true);
   for(const name of ['start','pause','finish','mode','manual','confirm','speed'])assert.equal(dispatch('click',action(name)).stopped,true,name);
   for(const name of ['list','home','device','control','cancel'])assert.equal(dispatch('click',action(name)).stopped,undefined,name);
-  assert.equal(ctx.state.running,true);assert.equal(ctx.state.paused,false);assert.equal(ctx.state.levelL,2);
+  assert.equal(ctx.state.running,true);assert.equal(ctx.state.paused,true);assert.equal(ctx.state.levelL,2);
 });
 test('drag, native range and keyboard command paths are blocked',()=>{
   const {ctx,dispatch}=load();ctx.V3ProTravelLock.setLocked(true);
@@ -46,4 +46,14 @@ test('unlock trigger overrides a locked URL seed and restores command availabili
   assert.equal(layers.length,0);
   assert.equal(dispatch('click',action('start')).stopped,undefined);
   assert.equal(ctx.V3ProTravelLock.isLocked(),false);
+});
+
+test('device lock report pauses but preserves the session; unlocking does not resume',()=>{
+ const {ctx}=load();ctx.state.timer=83;ctx.state.selectedProgram='Milk Boost';
+ ctx.V3ProTravelLock.setLocked(true);
+ assert.equal(ctx.state.running,true);assert.equal(ctx.state.paused,true);assert.equal(ctx.state.timer,83);
+ assert.equal(ctx.state.controlNotice.text,'Travel lock enabled. Pumping is paused.');
+ const id=ctx.state.controlNotice.id;ctx.V3ProTravelLock.setLocked(true);assert.equal(ctx.state.controlNotice.id,id);
+ ctx.V3ProTravelLock.setLocked(false);assert.equal(ctx.state.paused,true);assert.equal(ctx.state.timer,83);
+ assert.equal(ctx.state.selectedProgram,'Milk Boost');
 });
