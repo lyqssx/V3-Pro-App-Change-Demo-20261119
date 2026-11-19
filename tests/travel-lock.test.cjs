@@ -57,3 +57,11 @@ test('device lock report pauses but preserves the session; unlocking does not re
  ctx.V3ProTravelLock.setLocked(false);assert.equal(ctx.state.paused,true);assert.equal(ctx.state.timer,83);
  assert.equal(ctx.state.selectedProgram,'Milk Boost');
 });
+
+test('enabling travel lock before pumping is silent and preserves idle state',()=>{
+ const {ctx,layers}=load();ctx.state.running=false;ctx.state.paused=false;ctx.state.timer=0;
+ ctx.V3ProTravelLock.setLocked(true);
+ assert.equal(ctx.V3ProTravelLock.isLocked(),true);assert.equal(ctx.state.running,false);
+ assert.equal(ctx.state.paused,false);assert.equal(ctx.state.timer,0);
+ assert.equal(ctx.state.controlNotice,undefined);assert.equal(layers.length,0);
+});

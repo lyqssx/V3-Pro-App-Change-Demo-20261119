@@ -60,7 +60,7 @@
     pointerNotified = false;
     var old = host.querySelector('[data-travel-lock-dialog]');
     if (old) old.remove();
-    if (s.travelLocked && !wasLocked) {
+    if (s.travelLocked && !wasLocked && s.running) {
       // Simulate the device's lock/pause report; preserve the current session.
       if (s.running) s.paused = true;
       var id = 'travel-lock-enabled-' + (++lockNoticeSerial);
