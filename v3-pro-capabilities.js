@@ -22,7 +22,7 @@
       current.v3ProCapabilities.nightLightOn = current.v3ProCapabilities.nightLightLevel > 0;
     }
     if (!Number.isInteger(current.v3ProCapabilities.lastNightLightLevel) || current.v3ProCapabilities.lastNightLightLevel < 1) {
-      current.v3ProCapabilities.lastNightLightLevel = 2;
+      current.v3ProCapabilities.lastNightLightLevel = current.v3ProCapabilities.nightLightLevel > 0 ? current.v3ProCapabilities.nightLightLevel : 1;
     }
 
     /* Program sequencing remains available. Outside a selected program, the
@@ -131,7 +131,7 @@
       level = Math.max(0, Math.min(4, Math.round(Number(level) || 0)));
       if (level === 0) {
         capability.nightLightOn = false;
-        if (restoreDefaultAfterOff) capability.lastNightLightLevel = 2;
+        // Retain the most recent non-zero level when the slider reaches Off.
       } else {
         capability.lastNightLightLevel = level;
         capability.nightLightOn = typeof nextOn === 'boolean' ? nextOn : true;
@@ -195,7 +195,7 @@
       var capability = current.v3ProCapabilities;
       if (toggle) {
         var nextOn = capability.nightLightOn === false;
-        var nextLevel = nextOn && capability.nightLightLevel === 0 ? Math.max(1, capability.lastNightLightLevel || 2) : capability.nightLightLevel;
+        var nextLevel = nextOn && capability.nightLightLevel === 0 ? Math.max(1, capability.lastNightLightLevel || 1) : capability.nightLightLevel;
         updateNightLight(nextLevel, false, nextOn);
         return;
       }

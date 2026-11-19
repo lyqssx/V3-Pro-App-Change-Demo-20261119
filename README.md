@@ -30,3 +30,5 @@ python3 -m http.server 8766 --bind 127.0.0.1
 ## Language
 
 Product screens, dialogs and user messages are in English. The reviewer Trigger panel remains in Chinese.
+
+Night light: reopening restores the last non-zero brightness level; without valid memory it starts at level 1. Screen/button brightness is 5%–80%.
