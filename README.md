@@ -26,3 +26,7 @@ python3 -m http.server 8766 --bind 127.0.0.1
 打开 `http://127.0.0.1:8766/index.html?screen=control-manual-idle`。
 
 模拟功能用于评审，不连接真实设备。保存奶量后的路由和样式还原等 Demo 修复不属于新增产品需求。
+
+## Language
+
+Product screens, dialogs and user messages are in English. The reviewer Trigger panel remains in Chinese.

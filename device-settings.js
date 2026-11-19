@@ -28,7 +28,7 @@
   function connected() { return state.connected !== false && state.bluetoothConnected !== false && !state.air2Offline && new URLSearchParams(location.search).get('device-connected') !== '0'; }
   var toastTimer;
   function toast(message) {
-    if (message === '设备已锁定，请至设备解锁。' && window.V3ProTravelLock) { window.V3ProTravelLock.showBlocked(); return; }
+    if (message === 'Device locked. Please unlock it on the device.' && window.V3ProTravelLock) { window.V3ProTravelLock.showBlocked(); return; }
     var previous = root.querySelector('.ds-command-toast');
     if (previous) previous.remove();
     var notice = document.createElement('div');
@@ -37,8 +37,8 @@
     toastTimer = setTimeout(function () { notice.remove(); }, 2600);
   }
   function commandBlockReason() {
-    if (!connected()) return '设备未连接';
-    if (window.V3ProTravelLock ? window.V3ProTravelLock.isLocked() : (state.travelLocked || new URLSearchParams(location.search).get('travel-lock') === '1')) return '设备已锁定，请至设备解锁。';
+    if (!connected()) return 'Device not connected.';
+    if (window.V3ProTravelLock ? window.V3ProTravelLock.isLocked() : (state.travelLocked || new URLSearchParams(location.search).get('travel-lock') === '1')) return 'Device locked. Please unlock it on the device.';
     return '';
   }
   function canExecute(notify) { var reason = commandBlockReason(); if (reason && notify !== false) toast(reason); return !reason; }
@@ -48,10 +48,10 @@
     if (initialReason) { if (rollback) rollback(); toast(initialReason); return Promise.resolve(false); }
     return Promise.resolve().then(commandResponder).then(function (result) {
       var reason = commandBlockReason();
-      if (!reason && result !== 'success' && result !== true) reason = result === 'timeout' ? '指令超时，请重试' : '操作失败，请重试';
+      if (!reason && result !== 'success' && result !== true) reason = result === 'timeout' ? 'The request timed out. Please try again.' : 'Unable to complete the action. Please try again.';
       if (reason) { if (rollback) rollback(); toast(reason); return false; }
       apply(); return true;
-    }).catch(function () { if (rollback) rollback(); toast('操作失败，请重试'); return false; });
+    }).catch(function () { if (rollback) rollback(); toast('Unable to complete the action. Please try again.'); return false; });
   }
   function publishAdaptive() {
     state.v3ProCapabilities = state.v3ProCapabilities || {};

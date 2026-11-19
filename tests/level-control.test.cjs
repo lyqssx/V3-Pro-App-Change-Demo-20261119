@@ -87,12 +87,21 @@ test('last-side warning offers only end and cancel; cancel preserves state',()=>
     const {ctx}=load('stimulation',{root:{querySelectorAll:()=>[link],querySelector:()=>null,appendChild(){}},document:{createElement:()=>warning}});
     ctx.state.levelEnabledL=false;ctx.state.running=true;ctx.state.paused=false;
     const e={preventDefault(){},stopImmediatePropagation(){}};click(e);
-    assert.match(warning.innerHTML,/>取消</);
+    assert.match(warning.innerHTML,/>Cancel</);
     assert.doesNotMatch(warning.innerHTML,/warning-close|warning-open|开启左侧|开启右侧/);
     callbacks['[data-v57-warning-'+action+']'](e);
     assert.equal(removed,true);assert.equal(ctx.state.levelEnabledL,false);assert.equal(ctx.state.levelEnabledR,true);
     assert.equal(ctx.state.levelL,2);assert.equal(ctx.state.levelR,4);
     assert.equal(ctx.state.running,action==='cancel');
     if(action==='end')assert.equal(ctx.state.modal,'log');
+  }
+});
+
+test('level one uses the same off/on retention as every other valid level',()=>{
+  for(const [mode,max] of [['stimulation',5],['expression',15]])for(const side of ['l','r'])for(const level of [1,2,max]){
+    const {ctx}=load(mode);const key=side==='l'?'levelL':'levelR';const enabled=side==='l'?'levelEnabledL':'levelEnabledR';
+    ctx.state[key]=level;
+    ctx.__toggleV57Side(side);assert.equal(ctx.state[enabled],false);assert.equal(ctx.state[key],level);
+    ctx.__toggleV57Side(side);assert.equal(ctx.state[enabled],true);assert.equal(ctx.state[key],level);
   }
 });

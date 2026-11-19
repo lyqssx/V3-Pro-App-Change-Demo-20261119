@@ -27,7 +27,7 @@ test('adaptive acknowledgement updates the shared night-light presentation and p
   assert.equal(ctx.state.v3ProCapabilities.adaptiveBrightness,true);
 });
 test('failure, timeout, travel lock and disconnection preserve device settings', async()=>{
-  for(const [search,message] of [['?command-result=failed','操作失败，请重试'],['?command-result=timeout','指令超时，请重试'],['?travel-lock=1','设备已锁定，请至设备解锁。'],['?device-connected=0','设备未连接']]){
+  for(const [search,message] of [['?command-result=failed','Unable to complete the action. Please try again.'],['?command-result=timeout','The request timed out. Please try again.'],['?travel-lock=1','Device locked. Please unlock it on the device.'],['?device-connected=0','Device not connected.']]){
     const {ctx,api,notices}=load();ctx.location.search=search;
     assert.equal(await api.setAdaptiveBrightness(false),false);
     assert.equal(api.adaptiveEnabled(),true);

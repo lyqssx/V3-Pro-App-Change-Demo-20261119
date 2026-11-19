@@ -33,9 +33,9 @@ test('one pointer gesture creates one leak-style bottom sheet with exact guidanc
   assert.equal(layers.length,1);
   assert.match(layers[0].className,/sa-guide-layer/);
   assert.match(layers[0].innerHTML,/sa-fit-guide-panel/);
-  assert.match(layers[0].innerHTML,/设备已锁定，请至设备解锁。/);
-  assert.match(layers[0].innerHTML,/Stimulation（心形键）/);
-  assert.match(layers[0].innerHTML,/R（右侧键）5 秒/);
+  assert.match(layers[0].innerHTML,/Device locked. Please unlock it on the device./);
+  assert.match(layers[0].innerHTML,/Stimulation \(heart\)/);
+  assert.match(layers[0].innerHTML,/R \(right\)/);
   assert.match(layers[0].innerHTML,/assets\/v3-pro-main.png/);
 });
 test('unlock trigger overrides a locked URL seed and restores command availability',()=>{

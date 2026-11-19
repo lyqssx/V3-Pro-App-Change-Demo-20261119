@@ -331,7 +331,7 @@
     if (old) old.remove();
     var warning = document.createElement('div');
     warning.className = 'v57-side-warning';
-    warning.innerHTML = '<div class="v57-side-warning__sheet" role="dialog" aria-modal="true" aria-label="无法关闭两侧"><h3>无法关闭两侧</h3><p>是否结束本次吸奶？点击「结束吸奶」结束两侧吸奶，或点击「取消」保持当前状态。</p><div><button type="button" data-v57-warning-end>结束吸奶</button><button type="button" data-v57-warning-cancel>取消</button></div></div>';
+    warning.innerHTML = '<div class="v57-side-warning__sheet" role="dialog" aria-modal="true" aria-label="Cannot turn off both sides"><h3>Cannot turn off both sides</h3><p>To stop pumping on both sides, choose End Pumping. Choose Cancel to keep the current session unchanged.</p><div><button type="button" data-v57-warning-end>End Pumping</button><button type="button" data-v57-warning-cancel>Cancel</button></div></div>';
     root.appendChild(warning);
     warning.querySelector('[data-v57-warning-cancel]').addEventListener('click', function (event) {
       event.preventDefault(); event.stopImmediatePropagation(); warning.remove();

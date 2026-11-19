@@ -11,14 +11,14 @@
     overlay.className = 'sa-layer sa-guide-layer v3-travel-lock-layer';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', '旅行锁解锁指引');
+    overlay.setAttribute('aria-label', 'Travel lock unlock guide');
     overlay.setAttribute('data-travel-lock-dialog', '');
     overlay.innerHTML = '<div class="sa-scrim"></div><section class="sa-fit-guide-panel">' +
-      '<header class="sa-guide-header"><div class="sa-guide-title"><h2>设备已锁定</h2></div><button type="button" class="v4-circle v3-travel-lock-close" data-travel-lock-dismiss aria-label="关闭锁定提示"><img src="./assets/travel-lock-white-close.svg" alt=""></button></header>' +
-      '<p class="v3-travel-lock-message">设备已锁定，请至设备解锁。</p>' +
-      '<p class="v3-unlock-instruction">同时长按设备上的 <b>Stimulation（心形键）</b>和 <b>R（右侧键）5 秒</b>，直至旅行锁解除。</p>' +
-      '<div class="v3-unlock-art" role="img" aria-label="设备按键示意：同时长按心形 Stimulation 键和右下角 R 键 5 秒"><div class="v3-unlock-device"><img src="./assets/v3-pro-main.png" alt="V3 Pro 设备"><span class="v3-unlock-target v3-unlock-target--heart"></span><span class="v3-unlock-target v3-unlock-target--right"></span></div><span class="v3-unlock-duration">同时长按 5 秒</span></div>' +
-      '<button type="button" class="sa-primary v3-unlock-dismiss" data-travel-lock-dismiss>知道了</button></section>';
+      '<header class="sa-guide-header"><div class="sa-guide-title"><h2>Device locked</h2></div><button type="button" class="v4-circle v3-travel-lock-close" data-travel-lock-dismiss aria-label="Close travel lock guide"><img src="./assets/travel-lock-white-close.svg" alt=""></button></header>' +
+      '<p class="v3-travel-lock-message">Device locked. Please unlock it on the device.</p>' +
+      '<p class="v3-unlock-instruction">Press and hold the <b>Stimulation (heart)</b> and <b>R (right)</b> buttons together for <b>5 seconds</b> to unlock the device.</p>' +
+      '<div class="v3-unlock-art" role="img" aria-label="Device buttons: hold Stimulation and R together for 5 seconds"><div class="v3-unlock-device"><img src="./assets/v3-pro-main.png" alt="V3 Pro device"><span class="v3-unlock-target v3-unlock-target--heart"></span><span class="v3-unlock-target v3-unlock-target--right"></span></div><span class="v3-unlock-duration">Hold both for 5 seconds</span></div>' +
+      '<button type="button" class="sa-primary v3-unlock-dismiss" data-travel-lock-dismiss>Got it</button></section>';
 
     host.appendChild(overlay);
   }
